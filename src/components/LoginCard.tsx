@@ -2,6 +2,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showToast } from "../utils/toast";
+import { toast } from "react-toastify";
 type Inputs = {
   email: string;
   password: string;
@@ -29,10 +30,11 @@ export default function Login() {
       showToast.success("Login successfully.");
       navigate("/dashboard");
     } catch (error) {
+      showToast.error("login failed")
       if (axios.isAxiosError(error)) {
         console.error("Login failed:", error.response?.data || error.message);
       } else {
-        console.error("Login failed:", error);
+          console.error("Login failed:", error);
       }
     }
   };

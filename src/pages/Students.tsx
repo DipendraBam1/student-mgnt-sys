@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import StudentModal from "../components/LoginModal";
+
 interface Course {
   id: number;
   courseName: string;
@@ -14,6 +15,7 @@ interface Student {
   id: number;
   firstName: string;
   lastName: string;
+  // password:string;
   email: string;
   age: number;
   courses: Course[];
@@ -41,13 +43,14 @@ export default function Students() {
 
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(false);
+  // for edit select student
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
   const totalPages = Math.ceil(totalStudents / filter.limit);
 
   const fetchStudent = async () => {
     try {
       setLoading(true);
-
       const res = await axios.get(`${BASE_URL}/api/students`, {
         params: {
           page: filter.page,
@@ -60,7 +63,6 @@ export default function Students() {
       console.log("STUDENT RESPONSE:", res.data);
 
       setStudent(res.data.students.rows);
-
       setTotalStudents(res.data.students.count);
     } catch (error) {
       console.error("Error fetching students:", error);
@@ -183,9 +185,13 @@ export default function Students() {
           <p className="text-sm text-gray-500">Manage student records</p>
         </div>
 
-        <button onClick={() => setShowModal(true)}
-         className="rounded-lg bg-accent-from px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90">
-          
+        <button
+          onClick={() => {
+            setSelectedStudent(null);
+            setShowModal(true);
+          }}
+          className="rounded-lg bg-accent-from px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+        >
           + Add Student
         </button>
       </header>
@@ -313,7 +319,13 @@ export default function Students() {
                       </td>
 
                       <td className="px-6 py-4 text-right">
-                        <button className="mr-3 text-sm font-medium text-blue-600 hover:underline">
+                        <button
+                          onClick={() => {
+                            setShowModal(true);
+                            setSelectedStudent(item);
+                          }}
+                          className="mr-3 text-sm font-medium text-blue-600 hover:underline"
+                        >
                           Edit
                         </button>
 
@@ -379,10 +391,15 @@ export default function Students() {
         </section>
       </main>
       {showModal && (
-  <StudentModal
-    onClose={() => setShowModal(false)}
-  />
-)}
+        <StudentModal
+          onClose={() => {
+            setShowModal(false);
+            setSelectedStudent(null);
+          }}
+          onSuccess={fetchStudent}
+          student={selectedStudent}
+        />
+      )}
     </div>
   );
 }

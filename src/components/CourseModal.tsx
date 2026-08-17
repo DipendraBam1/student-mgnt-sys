@@ -1,7 +1,14 @@
 import axios from "axios";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { showToast } from "../utils/toast";
-
+import { useEffect } from "react";
+interface Course {
+  id: number;
+  courseName: string;
+  courseCode: string;
+  courseDuration: string;
+  courseFee: number;
+}
 type CourseInputs = {
   courseName: string;
   courseCode: string;
@@ -10,12 +17,20 @@ type CourseInputs = {
 };
 type CourseModalProps = {
   onClose: () => void;
+  onSuccess: () => void;
+  course: Course | null;
 };
 
-export default function CourseModal({ onClose }: CourseModalProps) {
+export default function CourseModal({
+  onClose,
+  onSuccess,
+  course,
+}: CourseModalProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm<CourseInputs>();
 
@@ -23,35 +38,65 @@ export default function CourseModal({ onClose }: CourseModalProps) {
     try {
       const token = localStorage.getItem("token");
       console.log(data);
-      const res = await axios.post("http://localhost:5000/api/courses", data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      if (course) {
+        const res = await axios.put(
+          `http://localhost:5000/api/courses/${course.id}`,
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
 
-      console.log(res.data);
-      showToast.success("Course added successfully.");
+        console.log("UPDATE RESPONSE:", res.data);
+        showToast.success("Course updated successfully.");
+      } else {
+        const res = await axios.post(
+          "http://localhost:5000/api/courses",
+          data,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        console.log(res.data);
+        showToast.success("Course added successfully.");
+      }
+      onSuccess();
       onClose();
     } catch (error) {
       console.log("Error adding course:", error);
     }
   };
-
+  useEffect(() => {
+    if (course) {
+      setValue("courseName", course.courseName);
+      setValue("courseCode", course.courseCode);
+      setValue("courseDuration", course.courseDuration);
+      setValue("courseFee", course.courseFee);
+    }
+  }, [course, setValue, reset]);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
         <button
           type="button"
-          onClick={onClose}
+          onClick={() => {
+            reset();
+            onClose();
+          }}
           className="absolute right-4 top-4 text-2xl text-gray-500 hover:text-black"
         >
           ×
         </button>
 
         <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">Add Course</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{course ? "Edit Course" : "Add Course"}</h1>
 
-          <p className="mt-2 text-sm text-gray-500">Enter course details</p>
+          <p className="mt-2 text-sm text-gray-500">{course ? "Update course details" : "Enter course details"}</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -155,10 +200,11 @@ export default function CourseModal({ onClose }: CourseModalProps) {
           </div>
           <button
             type="submit"
+            
             className="w-full rounded-lg bg-accent-from py-3 font-semibold text-white hover:opacity-90"
           >
-            Add Course
-          </button>
+{ course ? "Update Course" :  "Add Course"
+}          </button>
         </form>
       </div>
     </div>

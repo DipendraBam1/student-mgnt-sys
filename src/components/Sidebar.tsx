@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const MENU_ITEMS = [
   {
@@ -19,6 +19,11 @@ const MENU_ITEMS = [
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+    const handleLogout = () => {
+  localStorage.removeItem("token");
+  navigate("/");
+};
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-200 bg-white">
       
@@ -57,7 +62,7 @@ export default function Sidebar() {
       </nav>
 
        <div className="absolute bottom-0 w-full border-t border-gray-200 p-4">
-        <button className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-600 transition hover:bg-red-50 hover:text-red-600">
+        <button onClick = {handleLogout}className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-gray-600 transition hover:bg-red-50 hover:text-red-600">
           <span>↪</span>
           Logout
         </button>

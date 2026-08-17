@@ -11,6 +11,15 @@ type SignupInputs = {
   age: number;
   courseIds: number[];
 };
+type Student = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  // password:string;
+  email: string;
+  age: number;
+  courses: Course[];
+};
 type Course = {
   id: number;
   courseName: string;
@@ -20,26 +29,37 @@ type Course = {
 };
 type StudentModalProps = {
   onClose: () => void;
+  onSuccess : ()=>void;
+  student: Student | null;
 };
 
-export default function StudentModal({ onClose }: StudentModalProps) {
+export default function StudentModal({ onClose, onSuccess,student }: StudentModalProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm<SignupInputs>();
 
-  const onSubmit: SubmitHandler<SignupInputs> = async (data) => {
-    try {
-      const studentData = {
-        ...data,
-        courseIds: selectedCourses,
-      };
+const onSubmit: SubmitHandler<SignupInputs> = async (data) => {
+  try {
+    const token = localStorage.getItem("token");
 
-      const token = localStorage.getItem("token");
+    // Don't send password if it is empty
+    const studentData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      age: data.age,
+      courseIds: selectedCourses,
+      ...(data.password ? { password: data.password } : {}),
+    };
 
-      const res = await axios.post(
-        "http://localhost:5000/api/students",
+    if (student) {
+      // UPDATE
+      const res = await axios.put(
+        `http://localhost:5000/api/students/${student.id}`,
         studentData,
         {
           headers: {
@@ -48,13 +68,34 @@ export default function StudentModal({ onClose }: StudentModalProps) {
         },
       );
 
-      console.log(res.data);
+      console.log("UPDATE RESPONSE:", res.data);
+      showToast.success("Student updated successfully.");
+    } else {
+      // ADD
+      const res = await axios.post(
+        "http://localhost:5000/api/students",
+        {
+          ...studentData,
+          password: data.password,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      console.log("ADD RESPONSE:", res.data);
       showToast.success("Student added successfully.");
-      onClose();
-    } catch (error) {
-      console.log("Error adding student:", error);
     }
-  };
+
+    onSuccess();
+    onClose();
+  } catch (error: any) {
+    console.error("Error saving student:", error);
+    console.error("Backend error:", error.response?.data);
+  }
+};
   const [courses, setCourses] = useState<Course[]>([]);
   const [courseDropdown, setCourseDropdown] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState<number[]>([]);
@@ -74,21 +115,40 @@ export default function StudentModal({ onClose }: StudentModalProps) {
 
     fetchCourses();
   }, []);
+  useEffect(() => {
+    if (student) {
+      setValue("firstName", student.firstName);
+      setValue("lastName", student.lastName);
+      // setValue("password",student.password);
+      setValue("email", student.email);
+      setValue("age", student.age);
+
+      setSelectedCourses(student.courses.map((course) => course.id));
+    }
+  }, [student, setValue,reset]);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-8 shadow-2xl">
         <button
-          type="button"
-          onClick={onClose}
+          onClick={() => {
+            reset();
+            setSelectedCourses([]);
+            setCourseDropdown(false);
+            onClose();
+          }}
           className="absolute right-4 top-4 text-2xl text-gray-500 hover:text-black"
         >
           ×
         </button>
 
         <div className="mb-6 text-center">
-          <h1 className="text-3xl font-bold text-gray-800">Add Student</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {student ? "Edit Student" : "Add student"}
+          </h1>
 
-          <p className="mt-2 text-sm text-gray-500">Enter student details</p>
+          <p className="mt-2 text-sm text-gray-500">
+            {student ? "Edit student details" : "Enter student details"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -165,34 +225,38 @@ export default function StudentModal({ onClose }: StudentModalProps) {
             )}
           </div>
 
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-gray-700">
-              Password
-            </label>
+<div className="mb-6">
+  <label className="mb-2 block text-sm font-medium text-gray-700">
+    Password
+  </label>
 
-            <input
-              type="password"
-              placeholder="Enter password"
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-              })}
-              className={`w-full rounded-lg border px-4 py-3 outline-none ${
-                errors.password
-                  ? "border-red-500"
-                  : "border-gray-300 focus:border-blue-500"
-              }`}
-            />
+  <input
+    type="password"
+    placeholder={
+      student
+        ? "Enter new password (optional)"
+        : "Enter password"
+    }
+    {...register("password", {
+      required: !student ? "Password is required" : false,
+      minLength: {
+        value: 8,
+        message: "Password must be at least 8 characters",
+      },
+    })}
+    className={`w-full rounded-lg border px-4 py-3 outline-none ${
+      errors.password
+        ? "border-red-500"
+        : "border-gray-300 focus:border-blue-500"
+    }`}
+  />
 
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+  {errors.password && (
+    <p className="mt-1 text-sm text-red-500">
+      {errors.password.message}
+    </p>
+  )}
+</div>
           <div className="mb-4">
             <label className="mb-2 block text-sm font-medium text-gray-700">
               Age
@@ -269,7 +333,7 @@ export default function StudentModal({ onClose }: StudentModalProps) {
             type="submit"
             className="w-full rounded-lg bg-accent-from py-3 font-semibold text-white hover:opacity-90"
           >
-            Add Student
+            {student ? "Update student" : "Add Student"}
           </button>
         </form>
       </div>

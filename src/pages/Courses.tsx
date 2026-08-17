@@ -30,6 +30,7 @@ export default function Courses() {
     limit: Number(searchParams.get("limit")) || 7,
     sortBy: searchParams.get("sortBy") || "recent",
   });
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   const [totalCourses, setTotalCourses] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -289,7 +290,11 @@ export default function Courses() {
                         </td>
   
                         <td className="px-6 py-4 text-right">
-                          <button className="mr-3 text-sm font-medium text-blue-600 hover:underline">
+                          <button onClick = {()=>{
+                            setShowModal(true);
+                           setSelectedCourse(item);
+
+                          }}className="mr-3 text-sm font-medium text-blue-600 hover:underline">
                             Edit
                           </button>
   
@@ -356,7 +361,11 @@ export default function Courses() {
         </main>
         {showModal && (
     <CourseModal
-      onClose={() => setShowModal(false)}
+  onClose={() => {setShowModal(false);
+        setSelectedCourse(null)}
+      }
+      onSuccess={fetchCourse}
+      course={selectedCourse}
     />
   )}
       </div>
