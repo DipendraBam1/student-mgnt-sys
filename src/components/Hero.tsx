@@ -12,7 +12,7 @@ export default function Hero() {
       </h1>
 
       <p className="mt-6 max-w-xl text-lg leading-relaxed text-grey">
-        Track attendance, grades, and classroom notes in one dashboard.
+        Track students, courses, and enrollments in one dashboard.
         Simplify record-keeping and give teachers more time to teach.
       </p>
 
