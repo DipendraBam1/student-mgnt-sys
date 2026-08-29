@@ -28,7 +28,7 @@ interface Filter {
 }
 
 export default function Students() {
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = " https://student-mgnt-sys-bkd.vercel.app";
   const [showModal, setShowModal] = useState(false);
   const [student, setStudent] = useState<Student[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();

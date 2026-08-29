@@ -18,7 +18,7 @@ export default function Login() {
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
+      const res = await axios.post("https://student-mgnt-sys-bkd.vercel.app/api/login", {
         email: data.email,
         password: data.password,
       });
@@ -112,7 +112,7 @@ export default function Login() {
       <p className="mt-6 text-center text-sm text-gray-500">
         Don't have an account?{" "}
         <Link
-          to="/signup"
+          to="/"
           className="font-semibold text-[#7E33E0] hover:underline"
         >
           Register

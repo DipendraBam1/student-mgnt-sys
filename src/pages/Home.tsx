@@ -33,7 +33,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/students");
+        const res = await axios.get("https://student-mgnt-sys-bkd.vercel.app/api/students");
         setTotalStudents(res.data.students.count);
       } catch (err) {
         console.log("Error fetching students");
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
     const fetchCourses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/courses");
+        const res = await axios.get("https://student-mgnt-sys-bkd.vercel.app/api/courses");
         setTotalCourses(res.data.courses.count);
       } catch (err) {
         console.log("Error fetching course");
@@ -51,7 +51,7 @@ export default function Dashboard() {
 
     const fetchRecentStudents = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/students", {
+        const res = await axios.get("https://student-mgnt-sys-bkd.vercel.app/api/students", {
           params: {
             page: 1,
             limit: 5,
@@ -66,7 +66,7 @@ export default function Dashboard() {
     const fetchStudentsPerCourse = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:5000/api/students-per-course",
+          "https://student-mgnt-sys-bkd.vercel.app/api/students-per-course",
         );
 
         setCourseChartData(res.data.chartData);

@@ -59,7 +59,7 @@ const onSubmit: SubmitHandler<SignupInputs> = async (data) => {
     if (student) {
       // UPDATE
       const res = await axios.put(
-        `http://localhost:5000/api/students/${student.id}`,
+        `https://student-mgnt-sys-bkd.vercel.app/api/students/${student.id}`,
         studentData,
         {
           headers: {
@@ -73,7 +73,7 @@ const onSubmit: SubmitHandler<SignupInputs> = async (data) => {
     } else {
       // ADD
       const res = await axios.post(
-        "http://localhost:5000/api/students",
+        "https://student-mgnt-sys-bkd.vercel.app/api/students",
         {
           ...studentData,
           password: data.password,
@@ -103,7 +103,7 @@ const onSubmit: SubmitHandler<SignupInputs> = async (data) => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/courses");
+        const res = await axios.get("https://student-mgnt-sys-bkd.vercel.app/api/courses");
 
         console.log("COURSES:", res.data);
 

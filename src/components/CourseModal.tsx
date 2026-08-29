@@ -40,7 +40,7 @@ export default function CourseModal({
       console.log(data);
       if (course) {
         const res = await axios.put(
-          `http://localhost:5000/api/courses/${course.id}`,
+          `https://student-mgnt-sys-bkd.vercel.app/api/courses/${course.id}`,
           data,
           {
             headers: {
@@ -53,7 +53,7 @@ export default function CourseModal({
         showToast.success("Course updated successfully.");
       } else {
         const res = await axios.post(
-          "http://localhost:5000/api/courses",
+          "https://student-mgnt-sys-bkd.vercel.app/api/courses",
           data,
           {
             headers: {
