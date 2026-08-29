@@ -1,4 +1,3 @@
-import React from "react";
 import type { NavLink } from "../types";
 
 const NAV_LINKS: NavLink[] = [

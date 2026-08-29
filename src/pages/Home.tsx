@@ -29,8 +29,7 @@ export default function Dashboard() {
   >([]);
  
 
-  const navigate = useNavigate();
-  useEffect(() => {
+   useEffect(() => {
     const fetchStudents = async () => {
       try {
         const res = await axios.get("https://student-mgnt-sys-bkd.vercel.app/api/students");

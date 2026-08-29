@@ -1,8 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import StudentModal from "../components/LoginModal";
-import CourseModal from "../components/CourseModal";
+ import CourseModal from "../components/CourseModal";
 interface Course {
   id: number;
   courseName: string;
